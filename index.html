@@ -395,7 +395,7 @@ html,body{height:100%;width:100%;background:var(--bg-deep);}
     btns[q.a].classList.add('correct');if(!ok)btns[idx].classList.add('wrong');
     document.getElementById('fb').style.display='block';
     var fv=document.getElementById('fv');fv.className='fb-verdict '+(ok?'ok':'fail');
-    fv.textContent=ok?'✦ Correto, jovem bruxo!':'✗ Não desta vez...';
+    fv.textContent=ok?'✦ Correto, jovem bruxo!':'✗ Não foi desta vez...';
     document.getElementById('ft').textContent=q.exp;document.getElementById('nw').style.display='block';
     var bar=document.getElementById('tbar'),digits=document.getElementById('tdigits');
     if(bar)bar.style.transition='none';if(digits)digits.style.opacity='.4';
