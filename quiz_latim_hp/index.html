@@ -1,0 +1,506 @@
+cat > /mnt/user-data/outputs/quiz_latim_hp.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Grimorium Latinum — Quiz de Feitiços</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --gold:#c9a84c;--gold-light:#e8d08a;--gold-dim:rgba(201,168,76,0.22);--gold-faint:rgba(201,168,76,0.08);
+  --bg-deep:#09091a;--bg-mid:#0d0d22;--text-bright:#ede8ff;--text-muted:#9b93c0;
+  --green:#5dbf8a;--green-faint:rgba(91,191,138,0.07);--green-dim:rgba(91,191,138,0.18);
+  --purple:#9b7fe8;--purple-faint:rgba(155,127,232,0.07);--purple-dim:rgba(155,127,232,0.18);
+}
+html,body{height:100%;width:100%;background:var(--bg-deep);}
+#hp{background:var(--bg-deep);font-family:'Cinzel',Georgia,serif;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:100vh;width:100%;}
+.stars{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+
+/* ── HEADER ── */
+.header{background:var(--bg-mid);border-bottom:1.5px solid var(--gold);padding:clamp(12px,2.5vw,24px) clamp(16px,5vw,60px) clamp(10px,2vw,18px);text-align:center;position:relative;z-index:1;flex-shrink:0;}
+.header-crown{font-size:clamp(13px,2vw,20px);color:var(--gold);opacity:.65;letter-spacing:clamp(4px,1.2vw,10px);display:block;margin-bottom:3px;}
+.header-title{font-family:'Cinzel Decorative',serif;font-size:clamp(14px,2.8vw,24px);color:var(--gold);letter-spacing:clamp(1px,0.5vw,3px);display:block;margin-bottom:2px;}
+.header-sub{font-size:clamp(8px,1.1vw,11px);color:var(--gold-light);letter-spacing:clamp(2px,0.8vw,5px);opacity:.5;display:block;}
+
+/* ── ROUND TABS ── */
+.round-tabs{display:flex;position:relative;z-index:1;flex-shrink:0;border-bottom:1px solid rgba(201,168,76,.15);background:#08081a;}
+.rtab{flex:1;padding:clamp(8px,1.5vw,14px) 4px;text-align:center;font-family:'Cinzel',serif;font-size:clamp(9px,1.1vw,12px);letter-spacing:1px;color:rgba(201,168,76,.35);border-bottom:2px solid transparent;transition:color .3s,border-color .3s;cursor:default;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.rtab.done{color:rgba(201,168,76,.55);}
+.rtab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.rtab.active.r2{color:var(--green);border-bottom-color:var(--green);}
+.rtab.active.r3{color:var(--purple);border-bottom-color:var(--purple);}
+.rtab.done.r2{color:rgba(91,191,138,.45);}
+.rtab.done.r3{color:rgba(155,127,232,.45);}
+.rtab-icon{font-size:clamp(13px,1.8vw,18px);}
+.rtab-label{font-size:clamp(7px,0.9vw,10px);letter-spacing:1px;opacity:.8;}
+
+/* ── META BAR ── */
+.meta-bar{display:flex;align-items:center;justify-content:space-between;padding:clamp(6px,1.1vw,11px) clamp(16px,5vw,60px);background:#08081a;border-bottom:1px solid rgba(201,168,76,.1);position:relative;z-index:1;flex-shrink:0;}
+.meta-q{font-size:clamp(10px,1.3vw,13px);letter-spacing:1px;opacity:.85;display:flex;align-items:center;gap:6px;}
+.meta-q.r1{color:#b8a8e8;}.meta-q.r2{color:#a8d8b8;}.meta-q.r3{color:#c4b0f0;}
+.meta-s{font-size:clamp(11px,1.4vw,14px);color:var(--gold);letter-spacing:1px;}
+
+/* ── PROGRESS ── */
+.progress-bg{height:3px;background:rgba(201,168,76,.1);flex-shrink:0;position:relative;z-index:1;}
+.progress-fill{height:3px;transition:width .5s ease;}
+.progress-fill.r1{background:var(--gold);}
+.progress-fill.r2{background:var(--green);}
+.progress-fill.r3{background:var(--purple);}
+
+/* ── TIMER ── */
+.timer-bar-wrap{height:4px;background:rgba(255,255,255,.06);flex-shrink:0;position:relative;z-index:1;}
+.timer-bar{height:4px;transition:width 1s linear,background .5s;}
+.timer-bar.r1{background:var(--gold);}.timer-bar.r2{background:var(--green);}.timer-bar.r3{background:var(--purple);}
+.timer-bar.warn{background:#e07a30!important;}.timer-bar.danger{background:#d05050!important;}
+.timer-row{display:flex;align-items:center;justify-content:center;gap:clamp(6px,1vw,12px);padding:clamp(5px,.9vw,9px) clamp(16px,5vw,60px);background:#08081a;border-bottom:1px solid rgba(201,168,76,.08);flex-shrink:0;position:relative;z-index:1;}
+.timer-icon{font-size:clamp(13px,1.6vw,17px);}
+.timer-digits{font-family:'Cinzel',serif;font-size:clamp(14px,2vw,20px);font-weight:700;letter-spacing:2px;min-width:2ch;text-align:center;transition:color .3s;}
+.timer-digits.r1{color:var(--gold);}.timer-digits.r2{color:var(--green);}.timer-digits.r3{color:var(--purple);}
+.timer-digits.warn{color:#e07a30!important;}.timer-digits.danger{color:#d05050!important;}
+.timer-label{font-size:clamp(8px,1vw,10px);letter-spacing:2px;color:var(--text-muted);opacity:.6;text-transform:uppercase;}
+
+/* ── TIMEOUT FLASH ── */
+@keyframes flashRed{0%{opacity:.35}50%{opacity:0}100%{opacity:0}}
+.timeout-flash{position:absolute;inset:0;background:#d05050;pointer-events:none;animation:flashRed .6s ease forwards;z-index:10;}
+
+/* ── ROUND TRANSITION OVERLAY ── */
+.round-transition{
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--bg-deep);
+  opacity:0;pointer-events:none;
+  transition:opacity .35s ease;
+}
+.round-transition.visible{opacity:1;pointer-events:all;}
+.rt-ornament{font-size:clamp(22px,4vw,40px);letter-spacing:10px;margin-bottom:clamp(10px,2vw,20px);}
+.rt-label{font-size:clamp(9px,1.2vw,13px);letter-spacing:clamp(3px,1vw,7px);text-transform:uppercase;margin-bottom:clamp(8px,1.5vw,16px);opacity:.6;}
+.rt-name{font-family:'Cinzel Decorative',serif;font-size:clamp(22px,5vw,52px);line-height:1.2;margin-bottom:clamp(10px,2vw,20px);text-align:center;}
+.rt-time{font-family:'Cinzel',serif;font-size:clamp(11px,1.4vw,15px);letter-spacing:3px;opacity:.6;margin-bottom:clamp(16px,3vw,32px);}
+.rt-pip-row{display:flex;gap:clamp(6px,1.2vw,12px);}
+.rt-pip{width:clamp(8px,1.2vw,12px);height:clamp(8px,1.2vw,12px);border-radius:50%;background:rgba(255,255,255,.15);}
+.rt-pip.active{background:var(--gold);}
+.rt-pip.active.r2{background:var(--green);}
+.rt-pip.active.r3{background:var(--purple);}
+.rt-pip.done{background:rgba(255,255,255,.4);}
+/* color variants */
+.rt-ornament.r1{color:var(--gold);} .rt-ornament.r2{color:var(--green);} .rt-ornament.r3{color:var(--purple);}
+.rt-label.r1{color:var(--gold-light);} .rt-label.r2{color:#a8d8b8;} .rt-label.r3{color:#c4b0f0;}
+.rt-name.r1{color:var(--gold);} .rt-name.r2{color:var(--green);} .rt-name.r3{color:var(--purple);}
+.rt-time.r1{color:var(--gold-light);} .rt-time.r2{color:#a8d8b8;} .rt-time.r3{color:#c4b0f0;}
+@keyframes rtPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+.rt-name{animation:rtPulse 1.6s ease-in-out infinite;}
+
+/* ── BODY ── */
+.body{padding:clamp(14px,2.5vw,44px) clamp(16px,8vw,120px);position:relative;z-index:1;flex:1;display:flex;flex-direction:column;}
+
+/* ── SPELL BOX ── */
+.spell-box{text-align:center;padding:clamp(12px,2vw,26px) clamp(12px,4vw,48px);margin-bottom:clamp(10px,1.8vw,22px);border:1px solid rgba(201,168,76,.18);border-radius:14px;position:relative;}
+.spell-box::before,.spell-box::after{content:'✦';position:absolute;top:50%;transform:translateY(-50%);font-size:clamp(10px,1.3vw,15px);opacity:.28;}
+.spell-box::before{left:clamp(10px,2vw,20px);}.spell-box::after{right:clamp(10px,2vw,20px);}
+.spell-box.r1{background:var(--gold-faint);}
+.spell-box.r1::before,.spell-box.r1::after{color:var(--gold);}
+.spell-box.r2{background:var(--green-faint);border-color:rgba(91,191,138,.2);}
+.spell-box.r2::before,.spell-box.r2::after{color:var(--green);}
+.spell-box.r3{background:var(--purple-faint);border-color:rgba(155,127,232,.2);}
+.spell-box.r3::before,.spell-box.r3::after{color:var(--purple);}
+.spell-lbl{font-size:clamp(7px,.9vw,10px);letter-spacing:clamp(2px,.8vw,5px);opacity:.55;margin-bottom:5px;display:block;text-transform:uppercase;}
+.spell-lbl.r1{color:var(--gold-light);}.spell-lbl.r2{color:#a8d8b8;}.spell-lbl.r3{color:#c4b0f0;}
+.spell-name{font-family:'Cinzel Decorative',serif;font-size:clamp(18px,4vw,40px);display:block;}
+.spell-name.r1{color:var(--gold);}.spell-name.r2{color:var(--green);}.spell-name.r3{color:var(--purple);}
+
+/* ── QUESTION ── */
+.q-text{font-family:Georgia,serif;font-size:clamp(13px,1.7vw,17px);color:var(--text-muted);text-align:center;line-height:1.7;margin-bottom:clamp(10px,1.8vw,22px);font-style:italic;}
+
+/* ── OPTIONS ── */
+.opts{display:flex;flex-direction:column;gap:clamp(6px,1.1vw,11px);margin-bottom:clamp(6px,1.2vw,14px);}
+.opt{border-radius:10px;padding:clamp(11px,1.6vw,17px) clamp(14px,2.5vw,24px);text-align:left;cursor:pointer;font-family:Georgia,serif;font-size:clamp(13px,1.6vw,16px);color:var(--text-bright);display:flex;align-items:center;gap:clamp(10px,1.5vw,16px);width:100%;min-height:clamp(44px,5.5vw,56px);transition:background .15s,border-color .15s;border:1px solid;}
+.opt.r1{background:var(--gold-faint);border-color:rgba(201,168,76,.18);}
+.opt.r1:hover:not(:disabled){background:var(--gold-dim);border-color:rgba(201,168,76,.45);}
+.opt.r2{background:var(--green-faint);border-color:rgba(91,191,138,.15);}
+.opt.r2:hover:not(:disabled){background:var(--green-dim);border-color:rgba(91,191,138,.4);}
+.opt.r3{background:var(--purple-faint);border-color:rgba(155,127,232,.15);}
+.opt.r3:hover:not(:disabled){background:var(--purple-dim);border-color:rgba(155,127,232,.4);}
+.opt:disabled{cursor:default;}
+.opt.correct{background:rgba(76,175,112,.18)!important;border-color:#4caf70!important;color:#a8e6bd!important;}
+.opt.correct .opt-ltr{border-color:#4caf70!important;color:#a8e6bd!important;}
+.opt.wrong{background:rgba(208,80,80,.18)!important;border-color:#d05050!important;color:#f4aaaa!important;}
+.opt.wrong .opt-ltr{border-color:#d05050!important;color:#f4aaaa!important;}
+.opt-ltr{display:inline-flex;align-items:center;justify-content:center;width:clamp(22px,2.8vw,28px);height:clamp(22px,2.8vw,28px);min-width:clamp(22px,2.8vw,28px);border:1px solid;border-radius:5px;font-size:clamp(10px,1.1vw,12px);font-family:'Cinzel',serif;flex-shrink:0;}
+.opt-ltr.r1{border-color:rgba(201,168,76,.3);color:var(--gold);}
+.opt-ltr.r2{border-color:rgba(91,191,138,.3);color:var(--green);}
+.opt-ltr.r3{border-color:rgba(155,127,232,.3);color:var(--purple);}
+
+/* ── FEEDBACK ── */
+.feedback{display:none;background:rgba(8,8,24,.85);border:1px solid rgba(201,168,76,.18);border-radius:10px;padding:clamp(10px,1.6vw,17px) clamp(14px,2.5vw,22px);margin-top:8px;}
+.feedback.r2{border-color:rgba(91,191,138,.18);}.feedback.r3{border-color:rgba(155,127,232,.18);}
+.fb-verdict{font-size:clamp(11px,1.3vw,13px);font-family:'Cinzel',serif;letter-spacing:1px;margin-bottom:5px;}
+.fb-verdict.ok{color:#4caf70;}.fb-verdict.fail{color:#d05050;}.fb-verdict.timeout{color:#e07a30;}
+.fb-text{font-family:Georgia,serif;font-size:clamp(12px,1.4vw,14px);color:var(--text-muted);line-height:1.65;font-style:italic;}
+
+/* ── NEXT BTN ── */
+.next-wrap{display:none;margin-top:clamp(9px,1.6vw,16px);}
+.divider{text-align:center;font-size:11px;color:var(--gold);opacity:.25;letter-spacing:6px;margin-bottom:clamp(7px,1.1vw,13px);}
+.next-btn{width:100%;min-height:clamp(44px,5.2vw,54px);border-radius:10px;font-family:'Cinzel',serif;font-size:clamp(11px,1.4vw,14px);letter-spacing:1px;cursor:pointer;transition:background .15s;border:1px solid;}
+.next-btn.r1{background:rgba(201,168,76,.09);border-color:var(--gold);color:var(--gold);}
+.next-btn.r1:hover{background:var(--gold-dim);}
+.next-btn.r2{background:rgba(91,191,138,.09);border-color:var(--green);color:var(--green);}
+.next-btn.r2:hover{background:var(--green-dim);}
+.next-btn.r3{background:rgba(155,127,232,.09);border-color:var(--purple);color:var(--purple);}
+.next-btn.r3:hover{background:var(--purple-dim);}
+
+/* ── ROUND RESULT ── */
+.rr-body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(20px,4vw,56px) clamp(16px,8vw,120px);flex:1;text-align:center;}
+.rr-icon{font-size:clamp(40px,7vw,72px);display:block;margin-bottom:10px;}
+.rr-title{font-family:'Cinzel Decorative',serif;font-size:clamp(13px,2vw,20px);margin-bottom:6px;display:block;}
+.rr-title.r1{color:var(--gold);}.rr-title.r2{color:var(--green);}.rr-title.r3{color:var(--purple);}
+.rr-score{font-family:'Cinzel Decorative',serif;font-size:clamp(40px,7.5vw,76px);color:var(--gold);display:block;margin-bottom:4px;}
+.rr-of{font-size:clamp(9px,1vw,11px);letter-spacing:4px;color:var(--gold-light);opacity:.55;display:block;margin-bottom:16px;text-transform:uppercase;}
+.rr-stars{font-size:clamp(17px,2.8vw,26px);letter-spacing:5px;opacity:.8;display:block;margin-bottom:16px;}
+.rr-stars.r1{color:var(--gold);}.rr-stars.r2{color:var(--green);}.rr-stars.r3{color:var(--purple);}
+.rr-msg{font-family:Georgia,serif;font-style:italic;font-size:clamp(13px,1.6vw,16px);color:var(--text-muted);margin-bottom:clamp(18px,2.5vw,30px);max-width:420px;line-height:1.6;}
+.rr-next{min-height:clamp(44px,5.2vw,54px);padding:0 clamp(22px,3.5vw,44px);border-radius:10px;font-family:'Cinzel',serif;font-size:clamp(12px,1.4vw,15px);letter-spacing:1px;cursor:pointer;transition:background .15s;border:1px solid;}
+.rr-next.r1{background:var(--gold-faint);border-color:var(--gold);color:var(--gold);}
+.rr-next.r1:hover{background:var(--gold-dim);}
+.rr-next.r2{background:var(--green-faint);border-color:var(--green);color:var(--green);}
+.rr-next.r2:hover{background:var(--green-dim);}
+.rr-next.r3{background:var(--purple-faint);border-color:var(--purple);color:var(--purple);}
+.rr-next.r3:hover{background:var(--purple-dim);}
+
+/* ── FINAL RESULT ── */
+.fr-body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(20px,4vw,56px) clamp(16px,8vw,120px);flex:1;text-align:center;}
+.fr-icon{font-size:clamp(44px,8vw,80px);display:block;margin-bottom:8px;}
+.fr-title{font-family:'Cinzel Decorative',serif;font-size:clamp(11px,1.5vw,16px);color:var(--gold-light);opacity:.6;letter-spacing:3px;display:block;margin-bottom:4px;text-transform:uppercase;}
+.fr-score{font-family:'Cinzel Decorative',serif;font-size:clamp(44px,8.5vw,84px);color:var(--gold);display:block;margin-bottom:4px;}
+.fr-of{font-size:clamp(9px,1vw,11px);letter-spacing:4px;color:var(--gold-light);opacity:.55;display:block;margin-bottom:14px;text-transform:uppercase;}
+.fr-stars{color:var(--gold);font-size:clamp(17px,2.8vw,26px);letter-spacing:6px;opacity:.8;display:block;margin-bottom:14px;}
+.fr-rank{display:inline-block;border:1px solid var(--gold);border-radius:10px;padding:clamp(8px,1.4vw,13px) clamp(16px,2.8vw,30px);font-size:clamp(12px,1.5vw,15px);color:var(--gold-light);background:var(--gold-faint);margin-bottom:clamp(10px,1.5vw,18px);font-family:Georgia,serif;font-style:italic;}
+.fr-breakdown{display:flex;gap:clamp(8px,1.5vw,16px);margin-bottom:clamp(18px,2.5vw,30px);justify-content:center;flex-wrap:wrap;}
+.fr-pill{font-size:clamp(11px,1.3vw,13px);padding:6px 14px;border-radius:8px;font-family:'Cinzel',serif;letter-spacing:.5px;}
+.fr-pill.r1{background:var(--gold-faint);border:1px solid rgba(201,168,76,.3);color:var(--gold);}
+.fr-pill.r2{background:var(--green-faint);border:1px solid rgba(91,191,138,.3);color:var(--green);}
+.fr-pill.r3{background:var(--purple-faint);border:1px solid rgba(155,127,232,.3);color:var(--purple);}
+.restart-btn{min-height:clamp(44px,5.2vw,54px);padding:0 clamp(22px,3.5vw,44px);background:var(--gold-faint);border:1px solid var(--gold);border-radius:10px;font-family:'Cinzel',serif;font-size:clamp(12px,1.4vw,15px);letter-spacing:1px;color:var(--gold);cursor:pointer;transition:background .15s;}
+.restart-btn:hover{background:var(--gold-dim);}
+
+/* ── FOOTER ── */
+.footer{border-top:1px solid rgba(201,168,76,.1);padding:clamp(6px,1vw,11px);text-align:center;font-size:clamp(8px,1vw,10px);color:rgba(201,168,76,.25);letter-spacing:2px;position:relative;z-index:1;flex-shrink:0;}
+
+/* ── INTRO ── */
+.intro-body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(20px,4vw,56px) clamp(16px,8vw,120px);flex:1;text-align:center;position:relative;z-index:1;}
+.intro-crest{margin-bottom:clamp(14px,2.5vw,28px);}
+.crest-svg{width:clamp(60px,10vw,100px);height:clamp(60px,10vw,100px);}
+@keyframes crestPulse{0%,100%{filter:drop-shadow(0 0 10px rgba(201,168,76,0.3));}50%{filter:drop-shadow(0 0 22px rgba(201,168,76,0.65));}}
+.crest-svg{animation:crestPulse 3s ease-in-out infinite;}
+.intro-pretitle{font-size:clamp(9px,1.2vw,13px);letter-spacing:clamp(3px,1vw,7px);color:var(--gold-light);opacity:.6;text-transform:uppercase;display:block;margin-bottom:8px;}
+.intro-title{font-family:'Cinzel Decorative',serif;font-size:clamp(28px,6.5vw,64px);color:var(--gold);line-height:1.15;margin-bottom:clamp(6px,1vw,12px);text-shadow:0 0 30px rgba(201,168,76,0.3);}
+.intro-subtitle{font-size:clamp(10px,1.3vw,14px);color:var(--gold-light);letter-spacing:clamp(2px,0.8vw,5px);opacity:.55;display:block;margin-bottom:clamp(12px,2vw,22px);}
+.intro-divider{color:var(--gold);font-size:clamp(14px,2vw,20px);opacity:.4;margin-bottom:clamp(12px,2vw,22px);letter-spacing:8px;}
+.intro-desc{font-family:Georgia,serif;font-style:italic;font-size:clamp(13px,1.6vw,17px);color:var(--text-muted);line-height:1.7;margin-bottom:clamp(18px,2.8vw,32px);max-width:480px;}
+.intro-rounds{display:flex;flex-direction:column;gap:clamp(7px,1.2vw,12px);width:100%;max-width:420px;margin-bottom:clamp(22px,3.5vw,40px);}
+.intro-round{display:flex;align-items:center;gap:clamp(10px,1.5vw,16px);padding:clamp(10px,1.6vw,16px) clamp(14px,2.5vw,22px);border-radius:10px;border:1px solid;}
+.intro-round.r1{background:var(--gold-faint);border-color:rgba(201,168,76,.2);}
+.intro-round.r2{background:var(--green-faint);border-color:rgba(91,191,138,.2);}
+.intro-round.r3{background:var(--purple-faint);border-color:rgba(155,127,232,.2);}
+.ir-icon{font-size:clamp(16px,2.2vw,22px);}
+.ir-name{flex:1;text-align:left;font-family:'Cinzel',serif;font-size:clamp(11px,1.4vw,14px);letter-spacing:.5px;}
+.intro-round.r1 .ir-name{color:var(--gold-light);}
+.intro-round.r2 .ir-name{color:#a8d8b8;}
+.intro-round.r3 .ir-name{color:#c4b0f0;}
+.ir-time{font-size:clamp(10px,1.2vw,12px);letter-spacing:1px;opacity:.65;font-family:'Cinzel',serif;white-space:nowrap;}
+.intro-round.r1 .ir-time{color:var(--gold);}
+.intro-round.r2 .ir-time{color:var(--green);}
+.intro-round.r3 .ir-time{color:var(--purple);}
+@keyframes incipereGlow{0%,100%{box-shadow:0 0 12px rgba(201,168,76,0.25);}50%{box-shadow:0 0 28px rgba(201,168,76,0.55);}}
+.incipere-btn{min-height:clamp(48px,6vw,62px);padding:0 clamp(32px,6vw,64px);background:rgba(201,168,76,0.1);border:1.5px solid var(--gold);border-radius:12px;font-family:'Cinzel Decorative',serif;font-size:clamp(14px,2vw,20px);letter-spacing:clamp(1px,0.5vw,3px);color:var(--gold);cursor:pointer;transition:background .2s,transform .15s;animation:incipereGlow 2.5s ease-in-out infinite;margin-bottom:clamp(16px,2.5vw,28px);}
+.incipere-btn:hover{background:rgba(201,168,76,0.22);transform:scale(1.03);}
+.incipere-btn:active{transform:scale(0.98);}
+.intro-motto{font-family:Georgia,serif;font-style:italic;font-size:clamp(9px,1.1vw,12px);color:rgba(201,168,76,.28);letter-spacing:2px;}
+</style>
+</head>
+<body>
+<div id="hp">
+  <div class="stars" id="sw"></div>
+  <!-- Round transition overlay -->
+  <div class="round-transition" id="rt-overlay">
+    <div class="rt-ornament" id="rt-ornament">· ✦ ·</div>
+    <div class="rt-label" id="rt-label">Rodada</div>
+    <div class="rt-name" id="rt-name"></div>
+    <div class="rt-time" id="rt-time"></div>
+    <div class="rt-pip-row" id="rt-pips"></div>
+  </div>
+  <div class="header">
+    <span class="header-crown">· · ✦ · ·</span>
+    <span class="header-title">Grimorium Latinum</span>
+    <span class="header-sub">quiz de feitiços &amp; poções · hogwarts</span>
+  </div>
+  <div class="round-tabs" id="rtabs"></div>
+  <div id="qc" style="display:contents;"></div>
+  <div class="footer">Draco dormiens nunquam titillandus</div>
+</div>
+<script>
+(function(){
+  /* ── STARS ── */
+  var sw=document.getElementById('sw');
+  for(var i=0;i<70;i++){var s=document.createElement('div');var sz=Math.random()>.7?3:2;s.style.cssText='position:absolute;border-radius:50%;background:#fff;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+sz+'px;height:'+sz+'px;opacity:'+((Math.random()*.35+.08).toFixed(2));sw.appendChild(s);}
+
+  /* ── DATA ── */
+  var ROUNDS=[
+    {
+      id:'r1',icon:'🪄',label:'Feitiços Básicos',qicon:'🪄',time:15,num:1,
+      questions:[
+        {spell:'Oppugno',       q:'O que significa o verbo "oppugno"?',                                          opts:['Defender','Atacar','Esconder','Amaldiçoar'],                    a:1,exp:'"Oppugno" significa atacar, assaltar, sitiar. O feitiço faz objetos ou criaturas investirem contra um alvo.'},
+        {spell:'Ascendio',      q:'Qual o significado direto de "ascendo" no latim?',                            opts:['Cair lentamente','Flutuar','Subir','Desaparecer'],              a:2,exp:'"Ascendo" significa subir ou elevar-se. O feitiço lança o conjurador para o alto.'},
+        {spell:'Accio',         q:'O feitiço Accio vem do latim accio, accire. O que esse verbo significa?',    opts:['Chamar','Empurrar','Congelar','Partir'],                        a:0,exp:'"Accio" significa chamar, convocar, fazer vir a si. O feitiço traz objetos ao encontro do conjurador.'},
+        {spell:'Nox',           q:'A palavra Nox em latim significa:',                                           opts:['Luz','Sombra','Noite','Estrela'],                              a:2,exp:'"Nox" significa noite, e em sentido figurado também trevas. É o oposto a Lumos, apaga a luz da varinha.'},
+        {spell:'Lumos',         q:'Lumos é derivado de lumen. O que essa raiz indica?',                          opts:['Fogo','Claridade, luz','Calor intenso','Relâmpago'],            a:1,exp:'"Lumen" significa luz e claridade. O feitiço acende uma pequena luz na ponta da varinha.'},
+        {spell:'Protego',       q:'O verbo "protego" tem qual significado original?',                            opts:['Atacar','Proteger','Revelar','Transformar'],                   a:1,exp:'"Protego" significa proteger ou abrigar. O feitiço cria um escudo que protege de ataques mágicos.'}
+      ]
+    },
+    {
+      id:'r2',icon:'🛡️',label:'Defesa Contra as Artes das Trevas',qicon:'🛡️',time:10,num:2,
+      questions:[
+        {spell:'Imperius',         q:'Imperius vem de impero, imperare. Qual é o sentido desse verbo?',                                opts:['Servir','Comandar','Suplicar','Ignorar'],                              a:1,exp:'"Impero" significa comandar, exercer o poder, ordenar. A Maldição Imperius coloca a vítima sob total controle do conjurador.'},
+        {spell:'Cruciatus',        q:'Qual o significado da palavra cruciatus?',                                                       opts:['Acalmar a dor','Torturar','Esconder','Adormecer'],                    a:1,exp:'"Cruciatus" significa torturar e atormentar. A maldição submete quem for atingido a uma dor excruciante.'},
+        {spell:'Oculus Reparo',    q:'A palavra "Reparo" significa restaurar. Já a palavra "Oculus" quer dizer:',                      opts:['Visão','Olho','Luz','Vidro'],                                         a:1,exp:'"Oculus" significa olho. "Reparo" significa restaurar, consertar. Hermione usa o feitiço para consertar os óculos de Harry logo ao conhecê-lo.'},
+        {spell:'Expecto Patronum', q:'A palavra Patronum deriva de patronus. Qual o significado original?',                            opts:['Protetor','Pai','Espírito','Escudo'],                                 a:0,exp:'"Patronus" significa aquele que defende, protetor. O Feitiço do Patrono serve para afastar os Dementadores.'},
+        {spell:'Obliviate',        q:'O feitiço Obliviate vem da raiz oblivio. O que essa palavra significa?',                         opts:['Memória perfeita','Esquecimento','Sono profundo','Confusão mental'], a:1,exp:'"Oblivio" significa esquecimento. O feitiço apaga memórias específicas da mente da vítima.'},
+        {spell:'Cave Inimicum',    q:'"Cave" vem do verbo caveo, cavere. A tradução deste feitiço é:',                                 opts:['Atacar o inimigo','Fugir do inimigo','Guardar-se do inimigo','Chamar o adversário'],a:2,exp:'"Caveo" significa ter cautela, guardar-se. "Inimicus" é o inimigo pessoal. O feitiço cria uma barreira de proteção.'}
+      ]
+    },
+    {
+      id:'r3',icon:'🧪',label:'Poções & Feitiços Avançados',qicon:'🧪',time:6,num:3,
+      questions:[
+        {spell:'Vera Verto',    q:'A palavra "Verto" (em Vera Verto) significa?',                                                   opts:['Transformar','Verdadeiro','Mostrar a verdade','Desfazer um feitiço'],                           a:0,exp:'"Verto" significa virar, girar e transformar. O feitiço transforma animais em taças d\'água.'},
+        {spell:'Impedimenta',   q:'O feitiço Impedimenta vem de impedimentum. O que essa palavra significa originalmente?',          opts:['Passagem livre','Obstáculo','Velocidade máxima','Proteção invisível'],                           a:1,exp:'"Impedimentum" indica um obstáculo ou dificuldade. É uma azaração que derruba ou retarda o alvo.'},
+        {spell:'Veritaserum',   q:'A poção Veritaserum mistura veritas + serum. O que veritas significa?',                          opts:['Mentira','Soro','Verdade','Confissão forçada'],                                                  a:2,exp:'"Veritas" significa verdade e realidade. "Serum" é soro. A poção força quem a bebe a dizer apenas a verdade.'},
+        {spell:'Felix Felicis', q:'"Felix" e "Felicis" vêm da mesma raiz. Qual é o significado central?',                          opts:['Sorte, felicidade','Poção mágica','Destino inevitável','Coragem líquida'],                        a:0,exp:'"Felix" significa feliz e afortunado. Conhecida como Sorte Líquida, a poção garante sucesso em tudo que o usuário fizer.'},
+        {spell:'Volubilis',     q:'"Volubilis" vem do verbo volvo, volvere. Que ideia essa raiz carrega?',                          opts:['Mudar','Enrolar','Silenciar','Repetir'],                                                         a:1,exp:'"Volubilis" também é um adjetivo do latim, que significa enrolado ou algo que rola, pode se referir também à fala fluente ou rápida. A poção altera temporariamente a voz do usuário.'},
+        {spell:'Expelliarmus',  q:'O feitiço Expelliarmus é formado por expello + arma. Qual o significado?',                       opts:['Defender-se com armas','Afastar as armas, desarmar','Quebrar o escudo inimigo','Lançar feitiço sem varinha'],a:1,exp:'"Expello" significa expulsar, afastar. "Arma" são as armas. Juntos formam o sentido de desarmar ou afastar as armas do oponente. É o feitiço desarmador mais famoso de Harry Potter.'}
+      ]
+    }
+  ];
+
+  var letters=['A','B','C','D'];
+  var roundIdx=0,qIdx=0,answered=false,scores=[0,0,0];
+  var timerInterval=null,timerLeft=0,timerTotal=0;
+
+  /* ── TIMER ── */
+  function stopTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}}
+  function startTimer(secs,rid){
+    stopTimer();timerLeft=secs;timerTotal=secs;updateTimerUI(rid);
+    timerInterval=setInterval(function(){timerLeft--;updateTimerUI(rid);if(timerLeft<=0){stopTimer();onTimeout(rid);}},1000);
+  }
+  function updateTimerUI(rid){
+    var bar=document.getElementById('tbar'),digits=document.getElementById('tdigits');
+    if(!bar||!digits)return;
+    bar.style.width=(timerLeft/timerTotal)*100+'%';
+    digits.textContent=timerLeft;
+    bar.className='timer-bar '+rid;digits.className='timer-digits '+rid;
+    if(timerLeft<=3&&timerTotal>=6){bar.classList.add('danger');digits.classList.add('danger');}
+    else if(timerLeft<=Math.ceil(timerTotal*0.4)){bar.classList.add('warn');digits.classList.add('warn');}
+  }
+  function onTimeout(rid){
+    if(answered)return;answered=true;
+    var flash=document.createElement('div');flash.className='timeout-flash';document.getElementById('hp').appendChild(flash);
+    setTimeout(function(){if(flash.parentNode)flash.parentNode.removeChild(flash);},600);
+    var btns=document.querySelectorAll('.opt[data-i]');btns.forEach(function(b){b.disabled=true;});
+    var q=ROUNDS[roundIdx].questions[qIdx];btns[q.a].classList.add('correct');
+    var fb=document.getElementById('fb');fb.style.display='block';
+    var fv=document.getElementById('fv');fv.className='fb-verdict timeout';fv.textContent='⏳ Tempo esgotado!';
+    document.getElementById('ft').textContent=q.exp;document.getElementById('nw').style.display='block';
+  }
+
+  /* ── ROUND TRANSITION ── */
+  function showRoundTransition(R, callback){
+    var ov=document.getElementById('rt-overlay');
+    var orn=document.getElementById('rt-ornament');
+    var lbl=document.getElementById('rt-label');
+    var nm=document.getElementById('rt-name');
+    var tm=document.getElementById('rt-time');
+    var pips=document.getElementById('rt-pips');
+    orn.className='rt-ornament '+R.id;
+    lbl.className='rt-label '+R.id;
+    lbl.textContent='Rodada '+R.num+' de 3';
+    nm.className='rt-name '+R.id;
+    nm.textContent=R.icon+' '+R.label;
+    tm.className='rt-time '+R.id;
+    tm.textContent='⏳ '+R.time+' segundos por pergunta';
+    pips.innerHTML=ROUNDS.map(function(r,i){
+      var cls='rt-pip';
+      if(i<roundIdx)cls+=' done';
+      else if(i===roundIdx)cls+=' active '+R.id;
+      return '<div class="'+cls+'"></div>';
+    }).join('');
+    ov.classList.add('visible');
+    setTimeout(function(){
+      ov.classList.remove('visible');
+      setTimeout(callback,350);
+    },2200);
+  }
+
+  /* ── TABS ── */
+  function updateTabs(){
+    var tabs=document.getElementById('rtabs');
+    tabs.innerHTML=ROUNDS.map(function(r,i){
+      var cls='rtab '+r.id;
+      if(i<roundIdx)cls+=' done';
+      else if(i===roundIdx)cls+=' active';
+      return '<div class="'+cls+'"><span class="rtab-icon">'+r.icon+'</span><span class="rtab-label">'+r.label+'</span></div>';
+    }).join('');
+  }
+
+  /* ── RENDER QUESTION ── */
+  function renderQ(){
+    updateTabs();
+    var R=ROUNDS[roundIdx],q=R.questions[qIdx];
+    var pct=Math.round((qIdx/R.questions.length)*100);
+    document.getElementById('qc').innerHTML=
+      '<div class="meta-bar">'+
+        '<span class="meta-q '+R.id+'">'+R.qicon+' Pergunta '+(qIdx+1)+' de '+R.questions.length+'</span>'+
+        '<span class="meta-s">✦ '+scores[roundIdx]+' acerto'+(scores[roundIdx]!==1?'s':'')+'</span>'+
+      '</div>'+
+      '<div class="progress-bg"><div class="progress-fill '+R.id+'" style="width:'+pct+'%"></div></div>'+
+      '<div class="timer-bar-wrap"><div class="timer-bar '+R.id+'" id="tbar" style="width:100%"></div></div>'+
+      '<div class="timer-row"><span class="timer-icon">⏳</span><span class="timer-digits '+R.id+'" id="tdigits">'+R.time+'</span><span class="timer-label">segundos</span></div>'+
+      '<div class="body">'+
+        '<div class="spell-box '+R.id+'">'+
+          '<span class="spell-lbl '+R.id+'">Feitiço / Poção</span>'+
+          '<span class="spell-name '+R.id+'">'+q.spell+'</span>'+
+        '</div>'+
+        '<p class="q-text">'+q.q+'</p>'+
+        '<div class="opts">'+
+          q.opts.map(function(o,i){return '<button class="opt '+R.id+'" data-i="'+i+'"><span class="opt-ltr '+R.id+'">'+letters[i]+'</span>'+o+'</button>';}).join('')+
+        '</div>'+
+        '<div class="feedback '+R.id+'" id="fb"><div class="fb-verdict" id="fv"></div><div class="fb-text" id="ft"></div></div>'+
+        '<div class="next-wrap" id="nw"><div class="divider">· · ·</div>'+
+          '<button class="next-btn '+R.id+'" id="nb">'+(qIdx+1<R.questions.length?'✦ Próxima pergunta':'✦ Ver resultado da rodada')+'</button>'+
+        '</div>'+
+      '</div>';
+    document.querySelectorAll('.opt[data-i]').forEach(function(b){b.addEventListener('click',function(){pick(parseInt(b.dataset.i),q);});});
+    document.getElementById('nb').addEventListener('click',function(){
+      stopTimer();qIdx++;answered=false;
+      if(qIdx>=ROUNDS[roundIdx].questions.length)renderRoundResult();else renderQ();
+    });
+    startTimer(R.time,R.id);
+  }
+
+  /* ── PICK ── */
+  function pick(idx,q){
+    if(answered)return;answered=true;stopTimer();
+    var btns=document.querySelectorAll('.opt[data-i]');btns.forEach(function(b){b.disabled=true;});
+    var ok=idx===q.a;if(ok)scores[roundIdx]++;
+    btns[q.a].classList.add('correct');if(!ok)btns[idx].classList.add('wrong');
+    document.getElementById('fb').style.display='block';
+    var fv=document.getElementById('fv');fv.className='fb-verdict '+(ok?'ok':'fail');
+    fv.textContent=ok?'✦ Correto, jovem bruxo!':'✗ Não desta vez...';
+    document.getElementById('ft').textContent=q.exp;document.getElementById('nw').style.display='block';
+    var bar=document.getElementById('tbar'),digits=document.getElementById('tdigits');
+    if(bar)bar.style.transition='none';if(digits)digits.style.opacity='.4';
+  }
+
+  /* ── ROUND RESULT ── */
+  function rrMsg(s,t,n){var p=s/t;if(p===1)return'Desempenho impecável em '+n+'!';if(p>=.67)return'Bom trabalho em '+n+'. Continue assim!';if(p>=.34)return'Estude mais os feitiços de '+n+'.';return'Revise os conteúdos de '+n+' antes de prosseguir.';}
+  function rrStars(s,t){var p=s/t;if(p===1)return 5;if(p>=.67)return 4;if(p>=.5)return 3;if(p>=.34)return 2;return 1;}
+
+  function renderRoundResult(){
+    stopTimer();updateTabs();
+    var R=ROUNDS[roundIdx],s=scores[roundIdx],total=R.questions.length;
+    var st=rrStars(s,total),stars='★'.repeat(st)+'☆'.repeat(5-st);
+    var icon=s===total?'🏆':s>=4?'⭐':s>=2?'📜':'🪄';
+    var isLast=roundIdx===ROUNDS.length-1;
+    document.getElementById('qc').innerHTML=
+      '<div class="rr-body">'+
+        '<span class="rr-icon">'+icon+'</span>'+
+        '<span class="rr-title '+R.id+'">'+R.icon+' '+R.label+'</span>'+
+        '<span class="rr-score">'+s+'/'+total+'</span>'+
+        '<span class="rr-of">acertos nesta rodada</span>'+
+        '<span class="rr-stars '+R.id+'">'+stars+'</span>'+
+        '<p class="rr-msg">'+rrMsg(s,total,R.label)+'</p>'+
+        '<button class="rr-next '+R.id+'" id="rrnext">'+(isLast?'✦ Ver resultado final':'✦ Próxima rodada')+'</button>'+
+      '</div>';
+    document.getElementById('rrnext').addEventListener('click',function(){
+      if(isLast){renderFinal();}
+      else{
+        roundIdx++;qIdx=0;answered=false;
+        showRoundTransition(ROUNDS[roundIdx],renderQ);
+      }
+    });
+  }
+
+  /* ── FINAL ── */
+  function totalScore(){return scores[0]+scores[1]+scores[2];}
+  function totalQ(){return ROUNDS[0].questions.length+ROUNDS[1].questions.length+ROUNDS[2].questions.length;}
+  function finalRank(s,t){var p=s/t;if(p===1)return{text:'Nível Dumbledore — Sábio dos Sábios',stars:5};if(p>=.83)return{text:'Mago(a) de elite — Ordem da Fênix',stars:4};if(p>=.61)return{text:'Aprovado(a) em Defesa das Trevas',stars:3};if(p>=.39)return{text:'Precisa estudar mais em Hogwarts',stars:2};return{text:'Recomenda-se o Capítulo 1 novamente',stars:1};}
+
+  function renderFinal(){
+    stopTimer();updateTabs();
+    var s=totalScore(),t=totalQ(),r=finalRank(s,t);
+    var stars='★'.repeat(r.stars)+'☆'.repeat(5-r.stars);
+    var pct=Math.round(s/t*100);
+    var icon=pct===100?'🧙':pct>=70?'🦉':pct>=40?'📜':'🪄';
+    document.getElementById('qc').innerHTML=
+      '<div class="fr-body">'+
+        '<span class="fr-icon">'+icon+'</span>'+
+        '<span class="fr-title">Resultado Final</span>'+
+        '<span class="fr-score">'+s+'/'+t+'</span>'+
+        '<span class="fr-of">acertos · '+pct+'%</span>'+
+        '<span class="fr-stars">'+stars+'</span>'+
+        '<div class="fr-rank">'+r.text+'</div>'+
+        '<div class="fr-breakdown">'+
+          '<span class="fr-pill r1">🪄 R1: '+scores[0]+'/'+ROUNDS[0].questions.length+'</span>'+
+          '<span class="fr-pill r2">🛡️ R2: '+scores[1]+'/'+ROUNDS[1].questions.length+'</span>'+
+          '<span class="fr-pill r3">🧪 R3: '+scores[2]+'/'+ROUNDS[2].questions.length+'</span>'+
+        '</div>'+
+        '<button class="restart-btn" id="rbtn">↩ Recomeçar o ritual</button>'+
+      '</div>';
+    document.getElementById('rbtn').addEventListener('click',function(){
+      roundIdx=0;qIdx=0;answered=false;scores=[0,0,0];
+      renderIntro();
+    });
+  }
+
+  /* ── INTRO ── */
+  function renderIntro(){
+    stopTimer();
+    document.getElementById('rtabs').innerHTML=ROUNDS.map(function(r){
+      return '<div class="rtab '+r.id+'"><span class="rtab-icon">'+r.icon+'</span><span class="rtab-label">'+r.label+'</span></div>';
+    }).join('');
+    document.getElementById('qc').innerHTML=
+      '<div class="intro-body">'+
+        '<div class="intro-crest">'+
+          '<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="crest-svg">'+
+            '<polygon points="40,4 46,28 72,28 51,44 59,68 40,53 21,68 29,44 8,28 34,28" fill="none" stroke="#c9a84c" stroke-width="1.6"/>'+
+            '<polygon points="40,18 43,28 54,28 45,34 48,44 40,38 32,44 35,34 26,28 37,28" fill="rgba(201,168,76,0.12)" stroke="#c9a84c" stroke-width="0.8"/>'+
+            '<circle cx="40" cy="40" r="4" fill="#c9a84c" opacity="0.6"/>'+
+          '</svg>'+
+        '</div>'+
+        '<span class="intro-pretitle">Bem-vindo ao</span>'+
+        '<h1 class="intro-title">Grimorium<br>Latinum</h1>'+
+        '<p class="intro-subtitle">· quiz de feitiços &amp; poções · hogwarts ·</p>'+
+        '<div class="intro-divider"><span>✦</span></div>'+
+        '<p class="intro-desc">Três rodadas de seis perguntas cada.<br>Descubra as origens latinas dos feitiços mais poderosos da magia.</p>'+
+        '<div class="intro-rounds">'+
+          '<div class="intro-round r1"><span class="ir-icon">🪄</span><span class="ir-name">Feitiços Básicos</span><span class="ir-time">⏳ 15s</span></div>'+
+          '<div class="intro-round r2"><span class="ir-icon">🛡️</span><span class="ir-name">Defesa Contra as Artes das Trevas</span><span class="ir-time">⏳ 10s</span></div>'+
+          '<div class="intro-round r3"><span class="ir-icon">🧪</span><span class="ir-name">Poções &amp; Feitiços Avançados</span><span class="ir-time">⏳ 6s</span></div>'+
+        '</div>'+
+        '<button class="incipere-btn" id="incipere">✦ Incipere</button>'+
+        '<p class="intro-motto">Draco dormiens nunquam titillandus</p>'+
+      '</div>';
+    document.getElementById('incipere').addEventListener('click',function(){
+      roundIdx=0;qIdx=0;answered=false;scores=[0,0,0];
+      showRoundTransition(ROUNDS[0],renderQ);
+    });
+  }
+
+  renderIntro();
+})();
+</script>
+</body>
+</html>
+HTMLEOF
+echo "OK"
